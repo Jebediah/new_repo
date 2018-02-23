@@ -1,5 +1,6 @@
 import numpy as np
 import sklearn.metrics as metrics
+from sklearn.utils import shuffle
 
 import wide_residual_network as wrn
 from keras.datasets import cifar100
@@ -25,7 +26,16 @@ testX = (testX - testX.mean(axis=0)) / (testX.std(axis=0))
 trainY = kutils.to_categorical(trainY)
 testY = kutils.to_categorical(testY)
 
-generator = ImageDataGenerator(rotation_range=10,
+# split training data into training and validation sets
+trainX, trainY = shuffle(trainX, trainY, random_state=34)
+
+split = 40000
+trainSetX = trainX[:split, :, :, :]
+trainSetY = trainY[:split, :]
+validX = trainX[split:, :, :, :]
+validY = trainY[split:, :]
+
+testgenerator = ImageDataGenerator(rotation_range=10,
                                width_shift_range=5./32,
                                height_shift_range=5./32,)
 
@@ -47,12 +57,12 @@ print("Finished compiling")
 #model.load_weights("weights/WRN-40-10 Weights.h5")
 print("Model loaded.")
 
-model.fit_generator(generator.flow(trainX, trainY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
+model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
                    callbacks=[callbacks.ModelCheckpoint("weights/WRN-40-10 Weights.h5",
                                                         monitor="val_acc",
                                                         save_best_only=True,
                                                         verbose=1)],
-                   validation_data=(testX, testY),
+                   validation_data=(validX, validY),
                    validation_steps=testX.shape[0] // batch_size)
 
 model.save_weights("weights.h5")
