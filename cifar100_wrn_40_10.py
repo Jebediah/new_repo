@@ -54,6 +54,14 @@ model.fit_generator(generator.flow(trainX, trainY, batch_size=batch_size), steps
 
 model.save_weights("weights.h5")
 
+predicted_x = model.predict(testX)
+residuals = (np.argmax(predicted_x,1)!=np.argmax(testY,1))
+labels = np.argmax(predicted_x,1)
+
+id = [i for i in range(0, len(labels))]
+labels = np.stack((id, labels))
+np.savetxt("labels.csv", labels.transpose(), delimiter=",", fmt="%d,%d")
+
 yPreds = model.predict(testX)
 yPred = np.argmax(yPreds, axis=1)
 yPred = kutils.to_categorical(yPred)
