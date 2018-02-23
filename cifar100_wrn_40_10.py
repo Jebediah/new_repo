@@ -7,6 +7,7 @@ import keras.callbacks as callbacks
 import keras.utils.np_utils as kutils
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import plot_model
+from keras import optimizers
 
 from keras import backend as K
 
@@ -38,7 +39,9 @@ model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=6, k=4, d
 model.summary()
 plot_model(model, "WRN_40_10.png", show_shapes=False)
 
-model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["acc"])
+adadelta = optimizers.adadelta()
+
+model.compile(loss="categorical_crossentropy", optimizer=adadelta, metrics=["acc"])
 print("Finished compiling")
 
 #model.load_weights("weights/WRN-40-10 Weights.h5")
@@ -50,7 +53,7 @@ model.fit_generator(generator.flow(trainX, trainY, batch_size=batch_size), steps
                                                         save_best_only=True,
                                                         verbose=1)],
                    validation_data=(testX, testY),
-                   validation_steps=testX.shape[0] // batch_size,)
+                   validation_steps=testX.shape[0] // batch_size)
 
 model.save_weights("weights.h5")
 
