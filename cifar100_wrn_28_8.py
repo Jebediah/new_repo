@@ -45,28 +45,28 @@ init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 # For WRN-16-8 put N = 2, k = 8
 # For WRN-28-10 put N = 4, k = 10
 # For WRN-40-4 put N = 6, k = 4
-model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=6, k=4, dropout=0.3)
+model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=4, k=10, dropout=0.3)
 
 model.summary()
-plot_model(model, "WRN_40_10.png", show_shapes=False)
+plot_model(model, "WRN_28_10.png", show_shapes=False)
 
 opt = optimizers.sgd(lr=0.1, momentum=0.9, decay=0.0005, nesterov=True)
 
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
 print("Finished compiling")
 
-#model.load_weights("weights/WRN-40-10 Weights.h5")
+#model.load_weights("weights/WRN_28_10 Weights.h5")
 print("Model loaded.")
 
 model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainSetX) // batch_size, epochs=nb_epoch,
-                   callbacks=[callbacks.ModelCheckpoint("weights/WRN-40-10 Weights.h5",
+                   callbacks=[callbacks.ModelCheckpoint("weights/WRN_28_10 Weights.h5",
                                                         monitor="val_acc",
                                                         save_best_only=True,
                                                         verbose=1)],
                    validation_data=(validX, validY),
                    validation_steps=validX.shape[0] // batch_size)
 
-model.save_weights("weights.h5")
+model.save_weights("WRN_28_10_final_weights.h5")
 
 predicted_x = model.predict(testX)
 residuals = (np.argmax(predicted_x,1)!=np.argmax(testY,1))
