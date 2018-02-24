@@ -6,7 +6,7 @@ from keras.datasets import cifar100
 import keras.callbacks as callbacks
 import keras.utils.np_utils as kutils
 from keras.preprocessing.image import ImageDataGenerator
-from keras.utils import plot_model
+#from keras.utils import plot_model
 from keras import optimizers
 
 from keras import backend as K
@@ -37,7 +37,7 @@ init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=6, k=4, dropout=0.3)
 
 model.summary()
-plot_model(model, "WRN_40_10.png", show_shapes=False)
+#plot_model(model, "WRN_40_10.png", show_shapes=False)
 
 adadelta = optimizers.adadelta()
 
