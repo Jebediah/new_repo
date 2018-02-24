@@ -12,7 +12,7 @@ from keras import optimizers
 
 from keras import backend as K
 
-batch_size = 100
+batch_size = 128
 nb_epoch = 100
 img_rows, img_cols = 32, 32
 
