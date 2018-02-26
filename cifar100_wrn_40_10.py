@@ -47,7 +47,7 @@ init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=4, k=10, dropout=0.3)
 
 model.summary()
-plot_model(model, "WRN_28_10.png", show_shapes=False)
+#plot_model(model, "WRN_28_10.png", show_shapes=False)
 
 adadelta = optimizers.adadelta()
 
