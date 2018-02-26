@@ -7,7 +7,7 @@ from keras.datasets import cifar100
 import keras.callbacks as callbacks
 import keras.utils.np_utils as kutils
 from keras.preprocessing.image import ImageDataGenerator
-from keras.utils import plot_model
+#from keras.utils import plot_model
 from keras import optimizers
 
 from keras import backend as K
@@ -84,4 +84,3 @@ accuracy = metrics.accuracy_score(yTrue, yPred) * 100
 error = 100 - accuracy
 print("Accuracy : ", accuracy)
 print("Error : ", error)
-
