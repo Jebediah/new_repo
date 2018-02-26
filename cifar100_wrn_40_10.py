@@ -7,13 +7,13 @@ from keras.datasets import cifar100
 import keras.callbacks as callbacks
 import keras.utils.np_utils as kutils
 from keras.preprocessing.image import ImageDataGenerator
-#from keras.utils import plot_model
+from keras.utils import plot_model
 from keras import optimizers
 
 from keras import backend as K
 
-batch_size = 100
-nb_epoch = 100
+batch_size = 128
+nb_epoch = 200
 img_rows, img_cols = 32, 32
 
 (trainX, trainY), (testX, testY) = cifar100.load_data()
@@ -37,7 +37,9 @@ validY = trainY[split:, :]
 
 testgenerator = ImageDataGenerator(rotation_range=10,
                                width_shift_range=5./32,
-                               height_shift_range=5./32,)
+                               height_shift_range=5./32,
+                               horizontal_flip=True,
+                               vertical_flip=True)
 
 init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 
@@ -47,11 +49,11 @@ init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=4, k=10, dropout=0.3)
 
 model.summary()
-#plot_model(model, "WRN_28_10.png", show_shapes=False)
+plot_model(model, "WRN_28_10.png", show_shapes=False)
 
-adadelta = optimizers.adadelta()
+opt = optimizers.sgd(lr=0.1, momentum=0.9, decay=0.0005, nesterov=True)
 
-model.compile(loss="categorical_crossentropy", optimizer=adadelta, metrics=["acc"])
+model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
 print("Finished compiling")
 
 #model.load_weights("weights/WRN-28-10 Weights.h5")
