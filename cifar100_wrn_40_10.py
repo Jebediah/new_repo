@@ -44,17 +44,17 @@ init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 # For WRN-16-8 put N = 2, k = 8
 # For WRN-28-10 put N = 4, k = 10
 # For WRN-40-4 put N = 6, k = 4
-model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=6, k=4, dropout=0.3)
+model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=4, k=10, dropout=0.3)
 
 model.summary()
-plot_model(model, "WRN_40_10.png", show_shapes=False)
+plot_model(model, "WRN_28_10.png", show_shapes=False)
 
 adadelta = optimizers.adadelta()
 
 model.compile(loss="categorical_crossentropy", optimizer=adadelta, metrics=["acc"])
 print("Finished compiling")
 
-#model.load_weights("weights/WRN-40-10 Weights.h5")
+#model.load_weights("weights/WRN-28-10 Weights.h5")
 print("Model loaded.")
 
 model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
