@@ -6,6 +6,10 @@ import wide_residual_network as wrn
 from keras.datasets import cifar100
 import keras.callbacks as callbacks
 import keras.utils.np_utils as kutils
+from keras.layers import Input
+from keras.models import Model
+from keras.layers import Convolutional
+
 from keras.preprocessing.image import ImageDataGenerator
 #from keras.utils import plot_model
 from keras import optimizers
@@ -39,7 +43,7 @@ testgenerator = ImageDataGenerator(rotation_range=10,
                                width_shift_range=5./32,
                                height_shift_range=5./32,
                                horizontal_flip=True,
-                               vertical_flip=True)
+                               vertical_flip=False)
 
 init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 
@@ -59,15 +63,23 @@ print("Finished compiling")
 model.load_weights("weights/WRN-28-10 Weights.h5")
 print("Model loaded.")
 
-model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
-                   callbacks=[callbacks.ModelCheckpoint("weights/WRN-28-10 Weights.h5",
+ip_remap = Input(init_shape)
+y = Convolution2D(10, (1, 1), padding='same', kernel_initializer='he_normal', use_bias=False)(ip_remap)
+y = Convolution2D(3, (1, 1), padding='same', kernel_initializer='he_normal', use_bias=False)(y)
+
+colourspace = Model(ip_remap, y)
+
+merged_model = Model(inputs=colourspace.input, outputs=model(colourspace.output))
+
+merged_model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
+                   callbacks=[callbacks.ModelCheckpoint("weights/WRN-28-10 Colour.h5",
                                                         monitor="val_acc",
                                                         save_best_only=True,
                                                         verbose=1)],
                    validation_data=(validX, validY),
                    validation_steps=testX.shape[0] // batch_size)
 
-model.save_weights("weights.h5")
+merged_model.save_weights("weights/WRN-28-10_Colour_final.h5")
 
 predicted_x = model.predict(testX)
 residuals = (np.argmax(predicted_x,1)!=np.argmax(testY,1))

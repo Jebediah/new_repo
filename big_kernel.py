@@ -2,7 +2,7 @@ import numpy as np
 import sklearn.metrics as metrics
 from sklearn.utils import shuffle
 
-import wide_residual_network as wrn
+import wide_residual_kernel as wrn
 from keras.datasets import cifar100
 import keras.callbacks as callbacks
 import keras.utils.np_utils as kutils
@@ -39,7 +39,7 @@ testgenerator = ImageDataGenerator(rotation_range=10,
                                width_shift_range=5./32,
                                height_shift_range=5./32,
                                horizontal_flip=True,
-                               vertical_flip=True)
+                               vertical_flip=False)
 
 init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 
@@ -56,11 +56,11 @@ opt = optimizers.sgd(lr=0.1, momentum=0.9, decay=0.0005, nesterov=True)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
 print("Finished compiling")
 
-model.load_weights("weights/WRN-28-10 Weights.h5")
+model.load_weights("weights/big_kernel.h5")
 print("Model loaded.")
 
 model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
-                   callbacks=[callbacks.ModelCheckpoint("weights/WRN-28-10 Weights.h5",
+                   callbacks=[callbacks.ModelCheckpoint("weights/big_kernel.h5",
                                                         monitor="val_acc",
                                                         save_best_only=True,
                                                         verbose=1)],
