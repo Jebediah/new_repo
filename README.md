@@ -1,3 +1,5 @@
+## Fork of <a href="https://github.com/titu1994/Wide-Residual-Networks">this</a>
+
 # Wide Residual Networks in Keras
 
 Implementation of Wide Residual Networks from the paper <a href="http://arxiv.org/pdf/1605.07146v1.pdf">Wide Residual Networks</a> in Keras.
