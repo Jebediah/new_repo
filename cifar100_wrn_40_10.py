@@ -67,7 +67,7 @@ model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_si
                    validation_data=(validX, validY),
                    validation_steps=testX.shape[0] // batch_size)
 
-model.save_weights("weights.h5")
+model.save_weights("weights/WRN-28-10 Final.h5")
 
 predicted_x = model.predict(testX)
 residuals = (np.argmax(predicted_x,1)!=np.argmax(testY,1))
