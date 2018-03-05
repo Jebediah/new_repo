@@ -16,13 +16,13 @@ def expand_conv(init, base, k, strides=(1, 1), dropout=0.0):
     channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 
     input = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(init)
-    input = Activation('relu')(input)
+    input = Activation('selu')(input)
 
     x = Convolution2D(base * k, (3, 3), padding='same', strides=strides, kernel_initializer='he_normal',
                       use_bias=False)(input)
 
     x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
-    x = Activation('relu')(x)
+    x = Activation('selu')(x)
 
     if dropout > 0.0: x = Dropout(dropout)(x)
 
@@ -43,13 +43,13 @@ def conv_block(input, k=1, dropout=0.0, size=16):
     channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 
     x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(input)
-    x = Activation('relu')(x)
+    x = Activation('selu')(x)
 
     x = Convolution2D(size * k, (3, 3), padding='same', kernel_initializer='he_normal',
                       use_bias=False)(x)
 
     x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
-    x = Activation('relu')(x)
+    x = Activation('selu')(x)
 
     if dropout > 0.0: x = Dropout(dropout)(x)
 
@@ -104,7 +104,7 @@ def create_wide_residual_network(input_dim, nb_classes=100, N=2, k=1, dropout=0.
         nb_conv += 2
         
     x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
-    x = Activation('relu')(x)
+    x = Activation('selu')(x)
     
     x = AveragePooling2D((8, 8))(x)
     x = Flatten()(x)

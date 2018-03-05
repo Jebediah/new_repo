@@ -13,7 +13,7 @@ from keras import optimizers
 from keras import backend as K
 
 batch_size = 128
-nb_epoch = 200
+nb_epoch = 150
 img_rows, img_cols = 32, 32
 
 (trainX, trainY), (testX, testY) = cifar100.load_data()
@@ -27,7 +27,7 @@ trainY = kutils.to_categorical(trainY)
 testY = kutils.to_categorical(testY)
 
 # split training data into training and validation sets
-trainX, trainY = shuffle(trainX, trainY, random_state=34)
+trainX, trainY = shuffle(trainX, trainY, random_state=2)
 
 split = 40000
 trainSetX = trainX[:split, :, :, :]
@@ -38,8 +38,7 @@ validY = trainY[split:, :]
 testgenerator = ImageDataGenerator(rotation_range=10,
                                width_shift_range=5./32,
                                height_shift_range=5./32,
-                               horizontal_flip=True,
-                               vertical_flip=True)
+                               horizontal_flip=True)
 
 init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 
@@ -56,8 +55,8 @@ opt = optimizers.sgd(lr=0.1, momentum=0.9, decay=0.0005, nesterov=True)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
 print("Finished compiling")
 
-model.load_weights("weights/WRN-28-10 Weights.h5")
-print("Model loaded.")
+#model.load_weights("weights/WRN-28-10 Weights.h5")
+#print("Model loaded.")
 
 model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
                    callbacks=[callbacks.ModelCheckpoint("weights/WRN-28-10 Weights.h5",
@@ -67,7 +66,7 @@ model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_si
                    validation_data=(validX, validY),
                    validation_steps=testX.shape[0] // batch_size)
 
-model.save_weights("weights/WRN-28-10 Final.h5")
+model.save("weights/WRN-28-10 Final.h5")
 
 predicted_x = model.predict(testX)
 residuals = (np.argmax(predicted_x,1)!=np.argmax(testY,1))
@@ -75,7 +74,7 @@ labels = np.argmax(predicted_x,1)
 
 id = [i for i in range(0, len(labels))]
 labels = np.stack((id, labels))
-np.savetxt("labels.csv", labels.transpose(), delimiter=",", fmt="%d,%d")
+np.savetxt("vanilla_labels.csv", labels.transpose(), delimiter=",", fmt="%d,%d")
 
 yPreds = model.predict(testX)
 yPred = np.argmax(yPreds, axis=1)

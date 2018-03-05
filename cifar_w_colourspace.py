@@ -18,7 +18,7 @@ from keras import optimizers
 from keras import backend as K
 
 batch_size = 128
-nb_epoch = 32
+nb_epoch = 100
 img_rows, img_cols = 32, 32
 
 (trainX, trainY), (testX, testY) = cifar100.load_data()
@@ -34,7 +34,7 @@ testY = kutils.to_categorical(testY)
 # split training data into training and validation sets
 trainX, trainY = shuffle(trainX, trainY, random_state=4)
 
-split = 45000
+split = 40000
 trainSetX = trainX[:split, :, :, :]
 trainSetY = trainY[:split, :]
 validX = trainX[split:, :, :, :]
@@ -51,7 +51,7 @@ init_shape = (3, 32, 32) if K.image_dim_ordering() == 'th' else (32, 32, 3)
 # For WRN-16-8 put N = 2, k = 8
 # For WRN-28-10 put N = 4, k = 10
 # For WRN-40-4 put N = 6, k = 4
-#model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=4, k=10, dropout=0.3)
+model = wrn.create_wide_residual_network(init_shape, nb_classes=100, N=4, k=10, dropout=0.3)
 
 #model.summary()
 #plot_model(model, "WRN_28_10.png", show_shapes=False)
@@ -64,17 +64,17 @@ opt = optimizers.sgd(lr=0.1, momentum=0.9, decay=0.0005, nesterov=True)
 #model.load_weights("weights/WRN-28-10 Weights.h5")
 #print("Model loaded.")
 
-#ip_remap = Input(init_shape)
-#y = Convolution2D(10, (1, 1), padding='same', kernel_initializer='he_normal', use_bias=False)(ip_remap)
-#y = Convolution2D(3, (1, 1), padding='same', kernel_initializer='he_normal', use_bias=False)(y)
+ip_remap = Input(init_shape)
+y = Convolution2D(10, (1, 1), padding='same', kernel_initializer='he_normal', use_bias=False)(ip_remap)
+y = Convolution2D(3, (1, 1), padding='same', kernel_initializer='he_normal', use_bias=False)(y)
 
-#colourspace = Model(ip_remap, y)
+colourspace = Model(ip_remap, y)
 
-#merged_model = Model(inputs=colourspace.input, outputs=model(colourspace.output))
-merged_model = load_model("weights/WRN-28-10 Colour.h5")
+merged_model = Model(inputs=colourspace.input, outputs=model(colourspace.output))
+#merged_model = load_model("weights/WRN-28-10 Colour.h5")
 #merged_model.load_weights("weights/WRN-28-10_Colour_final.h5")
 merged_model.summary()
-#merged_model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
+merged_model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
 #print("Finished compiling")
 
 merged_model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=batch_size), steps_per_epoch=len(trainX) // batch_size, epochs=nb_epoch,
@@ -85,7 +85,7 @@ merged_model.fit_generator(testgenerator.flow(trainSetX, trainSetY, batch_size=b
                    validation_data=(validX, validY),
                    validation_steps=validX.shape[0] // batch_size)
 
-#merged_model.save("weights/WRN-28-10_Colour_final.h5")
+merged_model.save("weights/WRN-28-10_Colour_final.h5")
 
 yPreds = merged_model.predict(testX)
 residuals = (np.argmax(yPreds,1)!=np.argmax(testY,1))
